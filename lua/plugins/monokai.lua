@@ -1,9 +1,13 @@
 local STATE_FILE = vim.fn.stdpath("state") .. "/last_colorscheme"
-local DEFAULT = "monokai"
+local DEFAULT = "monokai-pro-iterm"
+local theme = require("config.colors.monokai-pro-iterm")
 
 local function read_saved()
   if vim.fn.filereadable(STATE_FILE) == 1 then
     local line = vim.fn.trim(vim.fn.readfile(STATE_FILE)[1] or "")
+    if line == "monokai" then
+      return DEFAULT
+    end
     if line ~= "" then
       return line
     end
@@ -28,7 +32,10 @@ local function apply_colorscheme(name)
     end
   end
 
-  vim.cmd.colorscheme(DEFAULT)
+  require("monokai").setup({
+    palette = theme.palette,
+    custom_hlgroups = theme.custom_hlgroups,
+  })
 end
 
 return {
@@ -46,16 +53,12 @@ return {
       })
     end,
     config = function()
-      require("monokai").setup({
-        palette = require("monokai").pro,
-      })
       apply_colorscheme(read_saved() or DEFAULT)
     end,
   },
   {
     "LazyVim/LazyVim",
     opts = {
-      -- Applied in monokai config after plugins load (supports persisted choice)
       colorscheme = function() end,
     },
   },
